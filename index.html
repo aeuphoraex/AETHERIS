@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHERIS - 2031 Synthesis Era OS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #00ffcc;
+            font-family: 'Space Mono', monospace;
+            overflow: hidden;
+        }
+
+        #hypnos-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            filter: contrast(120%) brightness(1.2);
+        }
+
+        #hud-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .hud-panel {
+            background: rgba(0, 20, 10, 0.7);
+            border: 1px solid #00ffcc;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .header { width: 400px; }
+        .footer { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; }
+
+        .glitch-text {
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: pulse 2s infinite;
+        }
+
+        .metric {
+            font-size: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .metric-value { color: #fff; }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #00ffcc;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p class="glitch-text" style="margin-top: 20px;">Mounting Holomorphic Kernel...</p>
+    </div>
+
+    <canvas id="hypnos-canvas"></canvas>
+
+    <div id="hud-container">
+        <div class="hud-panel header">
+            <div class="glitch-text">AETHERIS HHAIOS v1.1</div>
+            <div style="font-size: 9px; opacity: 0.7; margin-bottom: 10px;">Omni-Recursive Manifold Interface</div>
+            <div class="metric"><span>P2P MESH:</span> <span class="metric-value">ACTIVE (DECENTRALIZED)</span></div>
+            <div class="metric"><span>GPUDIRECT:</span> <span class="metric-value" id="gpu-status">INITIALIZING...</span></div>
+            <div class="metric"><span>LATENT DIM:</span> <span class="metric-value">5D ISOTROPIC</span></div>
+        </div>
+
+        <div class="footer">
+            <div class="hud-panel" style="width: 300px;">
+                <div class="metric"><span>X-LATENT:</span> <span id="l-0" class="metric-value">0.00</span></div>
+                <div class="metric"><span>Y-LATENT:</span> <span id="l-1" class="metric-value">0.00</span></div>
+                <div class="metric"><span>Z-LATENT:</span> <span id="l-2" class="metric-value">0.00</span></div>
+                <div class="metric"><span>W-LATENT:</span> <span id="l-3" class="metric-value">0.00</span></div>
+                <div class="metric"><span>V-LATENT:</span> <span id="l-4" class="metric-value">0.00</span></div>
+            </div>
+            <div class="hud-panel" style="text-align: right;">
+                <div class="glitch-text" id="sync-rate">SYNCING...</div>
+                <div style="font-size: 9px;">SYNTHESIS ERA 2031 READY</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the custom Meta-Syntactic Engine from your CDN
+        import { NSLCEngine } from 'https://cdn.jsdelivr.net/gh/aeuphoraex/AETHERIS@main/NSLC.js';
+
+        const canvas = document.getElementById('hypnos-canvas');
+        const ctx = canvas.getContext('2d');
+        let engine, width, height, centerX, centerY;
+        let frame = 0;
+
+        async function bootstrap() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            centerX = width / 2;
+            centerY = height / 2;
+
+            try {
+                engine = new NSLCEngine();
+                await engine.initialize();
+                
+                document.getElementById('gpu-status').innerText = "TENSOR_MIGRATION_READY";
+                document.getElementById('loading-screen').style.display = 'none';
+                
+                render();
+            } catch (err) {
+                console.error("Kernel Panic:", err);
+                document.querySelector('#loading-screen p').innerText = "FATAL: WebGPU/CDN UNAVAILABLE";
+            }
+        }
+
+        async function render() {
+            const startTime = performance.now();
+            frame += 0.015;
+
+            // Compute the 5D Manifold using the CDN-sourced WGSL Kernels
+            // Performing SO(5) Isotropic Rotations
+            await engine.runInferencePass(Math.sin(frame), 0, 1); // XY Plane
+            await engine.runInferencePass(Math.cos(frame * 0.5), 2, 4); // ZV Plane
+
+            const latent = engine.globalLatentState;
+
+            // Visual Synthesis (Spatial Computing Projection)
+            ctx.fillStyle = 'rgba(0, 5, 2, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 1;
+
+            // Draw the 5D Projection Geometry
+            const points = [];
+            for (let i = 0; i < 5; i++) {
+                const angle = (i / 5) * Math.PI * 2 + (frame * 0.2);
+                const radius = 100 + (latent[i] * 150);
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                points.push({x, y});
+                
+                // Draw Dimensional Autopoiesis Nodes
+                ctx.fillStyle = i % 2 === 0 ? '#00ffcc' : '#ffffff';
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Connect Manifold Vertices
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for(let p of points) ctx.lineTo(p.x, p.y);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Glow Effect
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#00ffcc";
+
+            // Update UI Metrics
+            for (let i = 0; i < 5; i++) {
+                document.getElementById(`l-${i}`).innerText = latent[i].toFixed(4);
+            }
+            
+            const syncTime = (performance.now() - startTime).toFixed(2);
+            document.getElementById('sync-rate').innerText = `LATENT_SYNC: ${syncTime}ms`;
+
+            requestAnimationFrame(render);
+        }
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            centerX = width / 2;
+            centerY = height / 2;
+        });
+
+        bootstrap();
+    </script>
+</body>
+</html>
